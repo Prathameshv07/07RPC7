@@ -82,7 +82,7 @@ int main (int argc, char *argv[])
  exit (1);
  }
   
- printf("Welcome to Quick Cal!!!\n");
+ printf("Welcome to my RPC Program !!!\n");
  printf("+ for Addition\n- for Substraction\n* for Multiplication\n/ for Division\n");
  printf("Enter number 1 :\n");
  scanf("%f",&a);
