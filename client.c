@@ -1,9 +1,7 @@
-#include "calculate.h"
- 
- 
+#include "calc.h"
+
 float calculate_prog_1(char *host,float n1,float n2,char opr,CLIENT *clnt)
 {
-  
  float *result_1;
  inputs add_1_arg;
  float *result_2;
