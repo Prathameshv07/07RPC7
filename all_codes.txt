@@ -1,0 +1,276 @@
+****************************************************************
+**2 - Apriori / Associate Minning**
+----------------------------------------------------------------
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from apyori import apriori
+
+# Load the dataset
+df = pd.read_csv("/content/drive/MyDrive/BD_Practicals/P2_Groceries_dataset.csv")
+
+# Data Validation
+df['Date'] = pd.to_datetime(df['Date'])
+
+# EDA - Member Shopping Frequency
+member_shopping_frequency = df['Member_number'].value_counts().sort_values(ascending=False)
+
+# Plotting
+plt.figure(figsize=(8, 6))
+sns.histplot(member_shopping_frequency, bins=8, color='skyblue', kde=False)
+plt.xlabel('Number of Purchases')
+plt.ylabel('Number of Members')
+plt.title('Member Shopping Frequency')
+plt.show()
+
+# Monthly Purchase Counts
+monthly_purchase_counts = df['Date'].dt.month.value_counts().sort_index()
+plt.figure(figsize=(10, 6))
+sns.barplot(x=monthly_purchase_counts.index, y=monthly_purchase_counts.values, color='skyblue')
+plt.xlabel('Month')
+plt.ylabel('Purchase Count')
+plt.title('Monthly Purchase Counts')
+plt.show()
+
+# Top 10 Items Frequency
+top_items = df['itemDescription'].value_counts().head(10)
+plt.figure(figsize=(10, 6))
+sns.barplot(x=top_items.index, y=top_items.values, color='skyblue')
+plt.xticks(rotation=45, ha='right')
+plt.title('Top 10 Items Frequency')
+plt.show()
+
+# Data Transformation
+#df.drop(columns=['Month'], inplace=True)
+
+# Association Rule Mining using Apriori
+transactions_list = df.groupby('Member_number')['itemDescription'].apply(list).tolist()
+association_rules = apriori(transactions_list, min_support=0.001, min_confidence=0.05, min_lift=4, min_length=2, max_length=2)
+rules_list = list(association_rules)
+
+# Extracting and displaying results
+results_df = pd.DataFrame([(tuple(rule[2][0][0]), tuple(rule[2][0][1]), rule[1], rule[2][0][2], rule[2][0][3]) for rule in rules_list],
+                           columns=['Antecedent', 'Consequent', 'Support', 'Confidence', 'Lift'])
+print(results_df)
+****************************************************************
+**3 - K-Mean**
+----------------------------------------------------------------
+# K-Means Clustering
+
+# Importing the dataset
+dataset = read.csv("C:\\Users\\chand\\OneDrive\\Documents\\TCSC\\M.sc DS 23-25\\SEM2\\Practical\\BigData\\P3_Mall_Customers.csv")
+head(dataset)
+dataset = dataset[4:5]
+head(dataset)
+
+wcss = vector()
+for (i in 1:10) wcss[i] = sum(kmeans(dataset, i)$withinss)
+plot(1:10,
+     wcss,
+     type = 'b',
+     main = paste('The Elbow Method'),
+     xlab = 'Number of clusters',
+     ylab = 'WSS')
+
+kmeans = kmeans(x = dataset, centers = 5)
+y_kmeans = kmeans$cluster
+
+# Visualising the clusters
+library(cluster)
+clusplot(dataset,
+         y_kmeans,
+         lines = 0,
+         shade = TRUE,
+         color = TRUE,
+         labels = 2,
+         main = paste('Clusters of customers'),
+         xlab = 'Annual Income',
+         ylab = 'Spending Score')
+
+****************************************************************
+**4 - Linear Regression**
+----------------------------------------------------------------
+install.packages('caTools')
+library(caTools)
+
+marketing <- read.csv("C:\\Users\\chand\\OneDrive\\Documents\\TCSC\\M.sc DS 23-25\\SEM2\\Practical\\BigData\\P4_marketing.csv")
+ls(marketing)
+str(marketing)
+
+colSums(is.na(marketing))
+plot(marketing$sales, marketing$youtube, col= rainbow(3))
+plot(marketing$sales, marketing$facebook, col= rainbow(3))
+plot(marketing$sales, marketing$newspaper, col= rainbow(3))
+boxplot(marketing)
+
+set.seed(100)
+sample = sample.split(marketing, SplitRatio = 0.75)
+train = subset(marketing, sample==TRUE)
+head(train)
+str(train)
+test = subset(marketing, sample==FALSE)
+str(test)
+
+#create the model
+m1 = lm(sales~youtube+facebook+newspaper, data=train)
+summary(m1)
+m2 = lm(sales~youtube+facebook, data=train)
+summary(m2)
+
+#prediction
+pred = predict(m2, test)
+summary(pred)
+View(pred)
+head(pred)
+head(test$sales)
+
+df = data.frame(cbind(Actual = test$sales, Prediction = pred))
+View(df)
+#RSE
+(sigma(m2)*100)/mean(marketing$sales)
+****************************************************************
+**5 - Logistic Regression**
+----------------------------------------------------------------
+#install.packages("caTools")    # For Logistic regression
+library(caTools)
+
+#fetch the data
+college <- read.csv("C:\\Users\\chand\\OneDrive\\Documents\\TCSC\\M.sc DS 23-25\\SEM2\\Practical\\BigData\\P5_6_studentmarks.csv")
+head(college)
+nrow(college)
+
+split <- sample.split(college, SplitRatio = 0.75)
+
+training_reg <- subset(college, split == "TRUE")
+test_reg <- subset(college, split == "FALSE")
+
+# Training model
+fit_logistic_model <- glm(admit ~ .,
+                      data = training_reg,
+                      family = "binomial")
+
+# Predict test data based on model
+predict_reg <- predict(fit_logistic_model,
+                       test_reg, type = "response")
+
+cdplot(as.factor(admit)~ gpa, data=college)
+cdplot(as.factor(admit)~ gre, data=college)
+cdplot(as.factor(admit)~ rank, data=college)
+
+# Changing probabilities
+predict_reg <- ifelse(predict_reg >0.5, 1, 0)
+predict_reg
+
+# Evaluating model accuracy
+# using confusion matrix
+table(test_reg$admit, predict_reg)
+****************************************************************
+**6 - Multiple Regression**
+----------------------------------------------------------------
+#install.packages("caTools")    # For Logistic regression
+library(caTools)
+
+StudentData <- read.csv("C:\\Users\\chand\\OneDrive\\Documents\\TCSC\\M.sc DS 23-25\\SEM2\\Practical\\BigData\\P5_6_studentmarks.csv")
+head(StudentData)
+nrow(StudentData)
+
+split <- sample.split(StudentData, SplitRatio = 0.75)
+
+training_reg <- subset(StudentData, split == "TRUE")
+test_reg <- subset(StudentData, split == "FALSE")
+
+# Training model
+fit_MRegressor_model <- lm(formula = admit ~ gre+gpa+rank,
+                           data = training_reg)
+
+# Predict test data based on model
+predict_reg <- predict(fit_MRegressor_model,
+                       newdata = test_reg)
+
+cdplot(as.factor(admit)~ gpa, data=StudentData)
+cdplot(as.factor(admit)~ gre, data=StudentData)
+cdplot(as.factor(admit)~ rank, data=StudentData)
+****************************************************************
+**7 - Decision Tree**
+----------------------------------------------------------------
+from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+a = load_iris()
+x = a.data
+y = a.target
+
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.25)
+
+model = DecisionTreeClassifier()
+model.fit(x_train, y_train)
+
+pred = model.predict(x_test)
+
+accuracy = accuracy_score(y_test, pred)
+print(accuracy)
+
+plt.figure(figsize=(10,10))
+plot_tree(model, feature_names=a.feature_names,class_names = a.target_names,filled=True)
+plt.show()
+****************************************************************
+**8 - Text Analysis**
+----------------------------------------------------------------
+dataset_original = read.delim('/content/drive/MyDrive/BD_Practicals/P8_restaurantreviews.tsv', quote = '', stringsAsFactors = FALSE)
+install.packages('tm')
+install.packages('SnowballC')
+library(tm)
+library(SnowballC)
+corpus = VCorpus(VectorSource(dataset_original$Review))
+corpus = tm_map(corpus, content_transformer(tolower))
+corpus = tm_map(corpus, removeNumbers)
+corpus = tm_map(corpus, removePunctuation)
+corpus = tm_map(corpus, removeWords, stopwords())
+corpus = tm_map(corpus, stemDocument)
+corpus = tm_map(corpus, stripWhitespace)
+dtm =  DocumentTermMatrix(corpus)
+dtm = removeSparseTerms(dtm, 0.999)
+dataset = as.data.frame(as.matrix(dtm))
+dataset$Liked = dataset_original$Liked
+print(dataset$Liked)
+dataset$Liked = factor(dataset$Liked, levels = c(0,1))
+install.packages(caTools)
+library(caTools)
+set.seed(123)
+split = sample.split(dataset$Liked, SplitRatio = 0.8)
+training_set = subset(dataset, split == TRUE)
+test_set = subset(dataset, split == FALSE)
+install.packages('randomForest')
+library(randomForest)
+classifier = randomForest(x = training_set[-692],
+                          y = training_set$Liked,
+                          ntree = 10)
+y_pred = predict(classifier, newdata = test_set[-692])
+cm = table(test_set[,692], y_pred)
+print(cm)
+****************************************************************
+**10 - Time Series Analysis**
+----------------------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.ar_model import AutoReg
+
+url='https://raw.githubusercontent.com/jenfly/opsd/master/opsd_germany_daily.csv'
+df = pd.read_csv(url,sep=",")
+df['Consumption'].plot()
+
+train_data = df['Consumption'][:len(df)-100]
+test_data = df['Consumption'][len(df)-100:]
+
+ar_model = AutoReg(train_data, lags=8).fit()
+print(ar_model.summary())
+
+pred = ar_model.predict(start=len(train_data), end=(len(df)-1), dynamic=False)
+plt.plot(pred)
+plt.plot(test_data, color='red')
+plt.show()
+****************************************************************
